@@ -12,7 +12,7 @@ export function getComments(params) {
 // 删除评论
 export function deleteComment(id) {
     return request({
-        url: '/api/comment' + id,
+        url: '/api/comment/' + id,
         method: 'delete',
     })
 }
