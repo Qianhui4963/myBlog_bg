@@ -87,10 +87,11 @@ export default {
             this.$message.success("操作成功");
           });
         } else if (this.mode == "add") {
-          console.log(getMarkInfo(obj.markdownContent))
-          await addBlog(obj).then((res) => {
-            this.$message.success("操作成功");
-          });
+          console.log(obj)
+          console.log(JSON.stringify(obj))
+          // await addBlog(obj).then((res) => {
+          //   this.$message.success("操作成功");
+          // });
         } else {
           this.$message.error("添加或修改失败");
           this.$router.push("/");

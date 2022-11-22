@@ -2,10 +2,27 @@ import marked from "marked";
 let toc = []
 let maxTitle = 1;
 let lastToc = null;
+
+/**
+ * 根据toc找到它父级
+ * @param {*} toc 
+ * @param {*} level 
+ * @returns 
+ */
+function findParentToc(toc, level) {
+    if (toc.parent === null) {
+        return null
+    }
+    if (toc.level == level) {
+        return toc.parent
+    } else {
+        return findParentToc(toc.parent, level)
+    }
+}
 const renderer = {
-    heading(text, level, raw) {
+    heading(text, level) {
         if (!lastToc) {
-            let _toc = createToc(text, text, lastToc, level)
+            let _toc = createToc(text, text, null, level)
             lastToc = _toc;
             toc.push(_toc)
             maxTitle = level;
@@ -17,15 +34,20 @@ const renderer = {
             maxTitle = level
             lastToc = _toc
         } else if (level == maxTitle) {
-            let _toc = createToc(text, text, lastToc.parent, level)
-            lastToc.parent.childern.push(_toc)
-        } else if (level < maxTitle) {
-            if (level == lastToc.parent.level) {
-                let _toc = createToc(text, text, lastToc.parent?.parent, level)
-                lastToc.parent?.parent.childern.push(_toc)
-                maxTitle = level
-                lastToc = _toc
+            if (findParentToc(lastToc, level) === null) {
+                let _toc = createToc(text, text, null, level)
+                lastToc = _toc;
+                toc.push(_toc)
+            } else {
+                let _toc = createToc(text, text, lastToc.parent, level)
+                lastToc.parent.childern.push(_toc)
             }
+        } else if (level < maxTitle) {
+            let parentToc = findParentToc(lastToc, level)
+            let _toc = createToc(text, text, parentToc, level)
+            parentToc ? parentToc.childern.push(_toc) : toc.push(_toc)
+            maxTitle = level
+            lastToc = _toc
         }
         return `<h${level} id='${text}'>${text}</h${level}>`;
     }
@@ -43,19 +65,20 @@ function createToc(anchor, name, parent, level) {
 
 marked.use({ renderer })
 
-function mapTOC(arr) {
-    let _toc = []
-    arr.forEach((item) => {
-        _toc.push({ anchor: item.anchor, name: item.name, childern: mapTOC(item.childern) })
+function filterTOC(arr) {
+    return arr.filter(item => {
+        return {
+            anchor: item.anchor,
+            name: item.name,
+            childern: filterTOC(item.childern)
+        }
     })
-    return _toc
 }
-
 
 export default function (md) {
     let html = marked.parse(md)
     return {
         html,
-        toc: mapTOC(toc)
+        toc: filterTOC(toc)
     }
 }
