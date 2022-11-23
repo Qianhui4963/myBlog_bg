@@ -65,8 +65,9 @@ function createToc(anchor, name, parent, level) {
 
 marked.use({ renderer })
 
+// 过滤toc字段
 function filterTOC(arr) {
-    return arr.filter(item => {
+    return arr.map(item => {
         return {
             anchor: item.anchor,
             name: item.name,
