@@ -1,6 +1,6 @@
 import marked from "marked";
 let toc = []
-let maxTitle = 1;
+let maxLevel = 1;
 let lastToc = null;
 
 /**
@@ -25,15 +25,15 @@ const renderer = {
             let _toc = createToc(text, text, null, level)
             lastToc = _toc;
             toc.push(_toc)
-            maxTitle = level;
+            maxLevel = level;
             return `<h${level} id='${text}'>${text}</h${level}>`;
         }
-        if (level > maxTitle) {
+        if (level > maxLevel) {
             let _toc = createToc(text, text, lastToc, level)
             lastToc.childern.push(_toc)
-            maxTitle = level
+            maxLevel = level
             lastToc = _toc
-        } else if (level == maxTitle) {
+        } else if (level == maxLevel) {
             if (findParentToc(lastToc, level) === null) {
                 let _toc = createToc(text, text, null, level)
                 lastToc = _toc;
@@ -42,11 +42,11 @@ const renderer = {
                 let _toc = createToc(text, text, lastToc.parent, level)
                 lastToc.parent.childern.push(_toc)
             }
-        } else if (level < maxTitle) {
+        } else if (level < maxLevel) {
             let parentToc = findParentToc(lastToc, level)
             let _toc = createToc(text, text, parentToc, level)
             parentToc ? parentToc.childern.push(_toc) : toc.push(_toc)
-            maxTitle = level
+            maxLevel = level
             lastToc = _toc
         }
         return `<h${level} id='${text}'>${text}</h${level}>`;

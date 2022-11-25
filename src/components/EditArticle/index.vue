@@ -73,7 +73,7 @@ export default {
       let obj = {
         title: this.form.title,
         description: this.form.description,
-        createDate: new Date().getTime(), // 传入当前的时间戳
+        createDate: new Date().getTime() - 8*60*60*1000, // 传入UTC时间戳
         categoryId: this.form.categoryId,
         htmlContent: html || "",
         toc,
